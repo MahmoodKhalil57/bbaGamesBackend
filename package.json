@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "PORT=8080 bun --hot src/main.ts"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.7",
+    "prisma": "^5.5.2"
+  },
+  "dependencies": {
+    "@prisma/client": "5.5.2"
+  }
+}

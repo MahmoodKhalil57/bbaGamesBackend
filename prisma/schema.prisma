@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// vvvvvvvvvvvvvvvvvv luciaAuth
+// AuthToken model represents an authentication token for a user.
+model AuthToken {
+  id        String   @id @unique
+  created   DateTime @default(now())
+  user_id   String
+  auth_user AuthUser @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("auth_token")
+}
+
+// AuthSession model represents a user's authentication session.
+// And countains a reference to the associated AuthUser.
+model AuthSession {
+  id             String   @id @unique
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  auth_user      AuthUser @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("auth_session")
+}
+
+// AuthKey model represents an authentication key for a user.
+model AuthKey {
+  id              String   @id @unique
+  hashed_password String?
+  user_id         String
+  auth_user       AuthUser @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("auth_key")
+}
+
+// AuthUser model represents a user in the authentication system.
+// It contains fields for user authentication, personal information, and other related data.
+model AuthUser {
+  id           String        @id @unique
+  auth_session AuthSession[]
+  auth_key     AuthKey[]
+  is_verified  Boolean       @default(false)
+  is_admin     Boolean       @default(false)
+
+  // here you can add custom fields for your user
+  username                   String                     @unique
+  firstName                  String
+  lastName                   String
+  email                      String                     @unique
+  profilePicture             String
+  AuthToken                  AuthToken[]
+  HybridUserData             HybridUserData?
+  MysteryPactLobby           MysteryPactLobby[]
+  mysteryPactLobbyMessagesId String?
+  MysteryPactLobbyMessages   MysteryPactLobbyMessages[]
+
+  @@index([id])
+  @@map("auth_user")
+}
+
+// ^^^^^^^^^^^^^^^^^^ luciaAuth
+
+//  This model represents an unlogged user in the system.
+model UnloggedUser {
+  id String @id @unique @default(uuid())
+
+  UserData HybridUserData?
+
+  @@index([id])
+  @@map("unlogged_user")
+}
+
+// This model represents hybrid user data,
+//     which can be associated with either a logged-in or unlogged user.
+model HybridUserData {
+  id String @id @unique @default(uuid())
+
+  loggedUserId   String? @unique
+  unloggedUserId String? @unique
+
+  AuthUser     AuthUser?     @relation(fields: [loggedUserId], references: [id], onDelete: Cascade)
+  UnloggedUser UnloggedUser? @relation(fields: [unloggedUserId], references: [id], onDelete: Cascade)
+
+  @@index([id])
+  @@map("user_data")
+}
+
+model MysteryPactLobby {
+  id String @id @unique @default(uuid())
+
+  name                     String
+  maxPlayers               Int
+  players                  AuthUser[]
+  MysteryPactLobbyMessages MysteryPactLobbyMessages[]
+
+  @@index([id])
+  @@map("mystery_pact_lobby")
+}
+
+model MysteryPactLobbyMessages {
+  id String @id @unique @default(uuid())
+
+  lobby              MysteryPactLobby @relation(fields: [mysteryPactLobbyId], references: [id])
+  message            String
+  author             AuthUser         @relation(fields: [authUserId], references: [id])
+  authUserId         String
+  mysteryPactLobbyId String
+
+  timeStamp DateTime @default(now())
+
+  @@index([id])
+  @@map("mystery_pact_lobby_messages")
+}
