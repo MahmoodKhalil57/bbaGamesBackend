@@ -1,12 +1,17 @@
 {
   "scripts": {
-    "start": "PORT=8080 bun --hot src/main.ts"
+    "dev": "tsc --watch & nodemon dist/main.js",
+    "start": "tsc && node dist/main.js"
   },
   "devDependencies": {
-    "bun-types": "^1.0.7",
-    "prisma": "^5.5.2"
+    "nodemon": "^3.0.1",
+    "prisma": "^5.5.2",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@prisma/client": "5.5.2"
+    "@prisma/client": "5.5.2",
+    "@supabase/supabase-js": "^2.38.4",
+    "dotenv": "^16.3.1",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.33.0"
   }
 }

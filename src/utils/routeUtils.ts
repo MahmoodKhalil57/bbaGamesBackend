@@ -1,3 +1,4 @@
+import { HttpRequest } from "uWebSockets.js";
 import { FormattedCookiesType } from "./routeUtils.types";
 
 export const parseCookies = (cookieHeader: string) => {
@@ -14,10 +15,10 @@ export const parseCookies = (cookieHeader: string) => {
   return cookies as FormattedCookiesType;
 };
 
-export const getUrlParts = (req: Request) => {
-  const url = new URL(req.url);
+export const getUrlParts = (req: HttpRequest) => {
+  const url = req.getUrl();
 
-  return url.pathname.split("/").filter((part) => part !== "");
+  return url.split("/").filter((part) => part !== "");
 };
 
 export const UUIDRegex =
